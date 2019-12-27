@@ -1,0 +1,111 @@
+1.Summarize for us the goal of this project and how machine learning is useful in trying to accomplish it. As part of your answer, give some background on the dataset and how it can be used to answer the project question. Were there any outliers in the data when you got it, and how did you handle those?  [relevant rubric items: “data exploration”, “outlier investigation”]
+
+This project target is to find the person(POI) who was involeved in the accounting fraud in Enron problem. To realize it, machine lerning that find the POI data features from Enron's email dataset is beneficial. 
+I explain the summary of this dataset. 
+ -Data points(people) are 146. 
+ -Each person have 21 features. 
+ -POI who total is 31 exist 18. This value is a few for learing the pattern.   
+ -total payment have a lot of NaN that is 14.4% in total. If we use total payment to predict POI, we have to take care of how to deal with the value. It will change the result by giving the effect to teaching dataset. For example, if we add the POI with total payment Nan, the total payment NaN may indicate that the person is POI.
+In the dataset, some outliers exist. Therefore, we need to judge leaving or taking out the outliers being important values or wrong values. I explain about outliers in the dataset. 
+ -Bonus and salary have a really big outlier. It is total value calculated in the spreadsheet. Therefore, we need to take it out.
+ -After taking the big outlier from Bounus and salary, some outliers exist in the dataset. But, the outliers are important values that include two eron's bosses. We should leave the values in the dataset.
+
+
+2.What features did you end up using in your POI identifier, and what selection process did you use to pick them? Did you have to do any scaling? Why or why not? As part of the assignment, you should attempt to engineer your own feature that does not come ready-made in the dataset -- explain what feature you tried to make, and the rationale behind it. (You do not necessarily have to use it in the final analysis, only engineer and test it.) In your feature selection step, if you used an algorithm like a decision tree, please also give the feature importances of the features that you use, and if you used an automated feature selection function like SelectKBest, please report the feature scores and reasons for your choice of parameter values.  [relevant rubric items: “create new features”, “intelligently select features”, “properly scale features”
+
+I used this for 7 features that are 'bonus','total_stock_value','exercised_stock_options','other','restricted_stock','deferred_income','expenses'.
+I tryed to decide these features by using the importances of each feature given from decision tree. Their importances are following.
+
+expenses	0.216677
+other	0.209998
+bonus	0.191949
+deferred_income	0.102710
+total_stock_value	0.098201
+exercised_stock_options	0.097057
+restricted_stock	0.083408
+
+To get the result, first, I checked all features like following.
+
+bonus	0.111321
+total_stock_value	0.110801
+exercised_stock_options	0.102120
+other	0.077292
+restricted_stock	0.074642
+deferred_income	0.074344
+expenses	0.071439
+long_term_incentive	0.059554
+salary	0.059349
+from_this_person_to_poi	0.052785
+total_payments	0.047719
+from_messages	0.036865
+to_messages	0.033629
+shared_receipt_with_poi	0.033506
+from_poi_to_this_person	0.031335
+deferral_payments	0.018530
+restricted_stock_deferred	0.004582
+loan_advances	0.000185
+director_fees	0.000000
+
+After that, I used SelectKBest for getting number of necessary features.The result is following.
+'k': 10
+
+And I picked Top 10 parameters up. And checked around it.
+
+(TOP 6 parameters)
+Accuracy: 0.86220	Precision: 0.47560	Recall: 0.32650
+(TOP 7 parameters)
+Accuracy: 0.86293	Precision: 0.48103	Recall: 0.35500
+(TOP 8 parameters)
+Accuracy: 0.86293	Precision: 0.48103	Recall: 0.35500
+(TOP 9 parameters)
+Accuracy: 0.85327	Precision: 0.43358	Recall: 0.32800
+(TOP 10 parameters)
+Accuracy: 0.85287	Precision: 0.43114	Recall: 0.32400
+(TOP 11 parameters)
+Accuracy: 0.84320	Precision: 0.38557	Recall: 0.29650
+
+Finally, I decided top 7 parameters from the result.
+
+Then, I didn't use scaling that's why I used decision tree and GaussianNB algorism.
+And I made three new features that are "fraction_from_poi","fraction_to_poi","fraction_bonus" and "fraction_salary".
+Each person have different range of the number of email. Therefore their mail from poi and to poi need to translate to fraction.
+"fraction_from_poi" is the number of mail from poi divided by the number of all given mail.
+"fraction_to_poi" is the number of mail from poi divided by the number of all sending mail.
+Each person also have different range of the number of payments. Therefore their salary and bonus need to translate to fraction.
+"fraction_bonus" is bonus divided by total_payments.
+"fraction_salary" is salary divided by total_payments.
+
+
+3.What algorithm did you end up using? What other one(s) did you try? How did model performance differ between algorithms?  [relevant rubric item: “pick an algorithm”]
+
+I tried three algorisms that are "GaussianNB", "Random Forest", "GaussianNB". I cofirmed the performance of default setting.
+From the result, I choosed "GaussianNB". I showed the performance to following.
+"GaussianNB":Accuracy: 0.85707	Precision: 0.44857	Recall: 0.31400
+"Random Forest": Accuracy: 0.85500	Precision: 0.37300	Recall: 0.12850
+"AdaBoost": Accuracy: 0.85773	Precision: 0.44798	Recall: 0.28850
+
+
+4.What does it mean to tune the parameters of an algorithm, and what can happen if you don’t do this well?  How did you tune the parameters of your particular algorithm? What parameters did you tune? (Some algorithms do not have parameters that you need to tune -- if this is the case for the one you picked, identify and briefly explain how you would have done it for the model that was not your final choice or a different model that does utilize parameter tuning, e.g. a decision tree classifier).  [relevant rubric items: “discuss parameter tuning”, “tune the algorithm”]
+
+We need to tune some parameters that each algorism have for getting better prediction performance. Tuning some parameters mean changing model learning environment like learning speed or model structure like decition tree numbers. I tuned n_estimators(10, 50, 100) in Adaboost algolism for better performance. But, best performance model was "GaussianNB" that don't have parameters.
+
+
+5.What is validation, and what’s a classic mistake you can make if you do it wrong? How did you validate your analysis?  [relevant rubric items: “discuss validation”, “validation strategy”]
+
+Veridation have two purpose. First, estimate the performance of the classifier and the reggretion on independent dataset. Second, prevent the over fitting of the model.
+If we use same data for train and test model, I got great performance. But, I can't predict anything useful on unseen data. it is big mistake that model is overfitting. 
+Therefore, we use validation. In this project, I did cross validation that divided dataset to 1000 sub dataset include train data and test data and estimate performance. In this project, I used StratifiedShuffleSplit of cross validation that's why the label data of this dataset is imbalanced which is few POI compared with a lot of non-POI. This method create sub dataset are made by preserving the percentage of samples for each class(POI and non-POI).
+
+6.Give at least 2 evaluation metrics and your average performance for each of them.  Explain an interpretation of your metrics that says something human-understandable about your algorithm’s performance. [relevant rubric item: “usage of evaluation metrics”]
+
+Accuracy=(TP+TP)/(P+N)
+Precition=(TP/TP+FP)
+Recall=TP/P
+TP:TruePositive
+FP:FalsePositive
+P:Positive
+N:Negative
+
+Accuracy indicate average model performance. And Precision indicate the possibility of true result on true judge. Recall indicate possibility of true judge on true result. Therefore, we need to get better both performance for better prediction.
+In this project, I select "GaussianNB" that's why precision and recall are better compared with other models.
+"GaussianNB":Accuracy: 0.86293	Precision: 0.48103	Recall: 0.35500
